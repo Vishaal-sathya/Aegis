@@ -16,8 +16,10 @@ def create_app():
     )
     app.device = app.config["DEVICE"]
 
-    # Register routes
-    from . import routes
-    app.register_blueprint(routes.bp)
+    from .routes.main import main_bp
+    app.register_blueprint(main_bp)
+
+    from .routes.model_routes import model_bp
+    app.register_blueprint(model_bp)
 
     return app

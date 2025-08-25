@@ -8,7 +8,10 @@ import os, time
 # ------------------- FACE DETECTOR -------------------
 DETECTOR = MTCNN()
 
-def detect_and_crop_face(image, target_size=(224, 224)):
+def detect_and_crop_face(image, target_size=(224, 224), padding=0.3):
+    """
+    padding: fraction of the face box to expand on each side (e.g., 0.2 = 20%)
+    """
     global DETECTOR
     results = DETECTOR.detect_faces(image)
     if len(results) == 0:
@@ -19,8 +22,20 @@ def detect_and_crop_face(image, target_size=(224, 224)):
     results = sorted(results, key=lambda x: x['box'][2] * x['box'][3], reverse=True)
     x, y, w, h = results[0]['box']
     x, y = max(0, x), max(0, y)
-    face = image[y:y + h, x:x + w]
+
+    # --- Add padding ---
+    pad_w = int(w * padding)
+    pad_h = int(h * padding)
+
+    x1 = max(0, x - pad_w)
+    y1 = max(0, y - pad_h)
+    x2 = min(image.shape[1], x + w + pad_w)
+    y2 = min(image.shape[0], y + h + pad_h)
+
+    face = image[y1:y2, x1:x2]
+
     return cv2.resize(face, target_size)
+
 
 
 def align_face(image, target_size=(224, 224)):

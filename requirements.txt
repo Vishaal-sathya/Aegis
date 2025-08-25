@@ -1,0 +1,11 @@
+rembg
+onnxruntime
+flask
+mtcnn
+numpy
+pandas
+albumentations
+opencv-python
+torch --index-url https://download.pytorch.org/whl/cu128
+torchvision --index-url https://download.pytorch.org/whl/cu128
+tensorflow

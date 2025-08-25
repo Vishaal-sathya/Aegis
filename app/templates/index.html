@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aegix - AI-Powered Age Estimation</title>
+    <title>Aegis - AI-Powered Age Estimation</title>
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
@@ -49,9 +49,9 @@
               </h1>
 
               <p class="hero-description">
-                Experience the future of age detection with our cutting-edge
-                machine learning technology. Get instant, accurate age estimates
-                from any image using advanced computer vision algorithms.
+                With Aegis, you will be able to enforce age related compliances
+                without additional manpower while also making it convenient for
+                your customers
               </p>
             </div>
 
@@ -67,7 +67,7 @@
           <div class="hero-image-container">
             <div class="glass-morphism floating-animation">
               <img
-                src="/static/assets/hero-age-estimation.jpg"
+                src="/static/assets/hero.png"
                 alt="AI Age Estimation Technology Interface"
                 class="hero-image"
               />
@@ -104,9 +104,8 @@
           </div>
           <h2 class="section-title gradient-text">Check Your Age</h2>
           <p class="section-description">
-            With Aegis, you will be able to enforce age related compliances
-            without additional manpower while also making it convenient for your
-            customers
+            Experience our AI-powered age estimation technology in real-time
+            using your webcam.
           </p>
         </div>
         <canvas id="capture-canvas" style="display: none"></canvas>
@@ -121,6 +120,13 @@
             <button id="start-estimation" class="glass-button primary lg">
               <span class="button-text">Record</span>
               <span class="processing-text">Processing</span>
+            </button>
+            <button
+              id="switch-camera"
+              class="glass-button secondary lg"
+              style="margin-left: 10px"
+            >
+              Switch Camera
             </button>
           </div>
 
@@ -161,6 +167,15 @@
         </div>
       </div>
     </section>
+
+    <script>
+      // Close button click event
+      document
+        .getElementById("close-age-popup")
+        .addEventListener("click", () => {
+          document.getElementById("age-result-popup").style.display = "none";
+        });
+    </script>
 
     <!-- Learn More Section -->
     <section id="learn">
@@ -211,8 +226,8 @@
                   </div>
                   <h3 class="benefit-title text-tech-cyan">Fast Result</h3>
                   <p class="benefit-description">
-                    Get instant age estimations in milliseconds with our
-                    optimized processing pipeline.
+                    Get instant age estimations in seconds with our optimized
+                    processing pipeline.
                   </p>
                 </div>
               </div>
@@ -289,14 +304,14 @@
               <h2 class="learn-title">
                 <span>We deliver </span>
                 <span class="gradient-text">high quality</span>
-                <br />
+
                 <span>results</span>
               </h2>
 
               <p class="learn-description">
                 Our advanced AI technology combines cutting-edge computer vision
                 with deep learning algorithms to provide the most accurate age
-                estimation available. Built for developers, trusted by
+                estimation available. Built for consumers, trusted by
                 enterprises, and designed with privacy at its core.
               </p>
             </div>
@@ -429,8 +444,8 @@
               </div>
               <h3 class="step-title text-secondary">Contrast Enhancement</h3>
               <p class="step-description">
-                Apply histogram equalization and adaptive filters to improve
-                image clarity and feature visibility.
+                Apply contrast limited adaptive histogram equalization to
+                improve image clarity and feature visibility.
               </p>
               <div class="step-number secondary">3</div>
             </div>

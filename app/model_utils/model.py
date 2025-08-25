@@ -199,6 +199,37 @@ def coral_decode(logits, threshold=0.5, idx_to_class=idx_to_class):
 
     if idx_to_class:
         pred_ages = [class_to_age(idx_to_class[i.item()]) for i in pred_idx]
-        
+        print(pred_ages[0])
         return pred_ages[0]
     return pred_idx
+
+
+# -------------------------
+# Decode predictions
+# -------------------------
+# def class_to_age(class_name: str) -> int:
+#     if class_name == "below_8":
+#         return 7
+#     elif class_name == "above_50":
+#         return 51
+#     else:
+#         return int(class_name)
+    
+
+# def coral_decode(logits, threshold=0.5, idx_to_class=idx_to_class):
+#     probs = torch.sigmoid(logits)
+    
+#     # handle batch and single input
+#     if probs.dim() == 1:
+#         pred_idx = torch.sum(probs > threshold)
+#     else:
+#         pred_idx = torch.sum(probs > threshold, dim=1)
+    
+#     if idx_to_class is not None:
+#         pred_ages = [class_to_age(idx_to_class[i.item()]) if isinstance(i, torch.Tensor) else class_to_age(idx_to_class[i]) 
+#                      for i in (pred_idx if pred_idx.dim() else [pred_idx])]
+#         print(f"prediction -------->{pred_ages if len(pred_ages) > 1 else pred_ages[0]}")
+       
+#         return pred_ages if len(pred_ages) > 1 else pred_ages[0]
+#     print(f"prediction idx -------->{pred_idx}")
+#     return pred_idx

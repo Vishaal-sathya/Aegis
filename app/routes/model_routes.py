@@ -1,6 +1,7 @@
 from app.model_utils.preprocess import preprocess_pipeline
 from app.model_utils.model import coral_decode
 
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from flask import Blueprint, render_template, current_app, request, jsonify
 import torch
 from torchvision import transforms
@@ -10,6 +11,7 @@ from werkzeug.utils import secure_filename
 import numpy as np
 from PIL import Image
 from rembg import remove
+import io
 
 
 # def preprocess_image(img_path, order=[3,4,6,9]):
@@ -75,6 +77,38 @@ def preprocess_image(img_path, order=[3,4,6,9]):
     return img_tensor
 
 
+def preprocess_and_predict_h5(save_path, model, app_root):
+    # Step 1: Open image
+    with open(save_path, "rb") as f:
+        input_image = f.read()
+
+    # Step 2: Remove background
+    output_image = remove(input_image)
+
+    # Step 3: Load background-removed image with PIL
+    img = Image.open(io.BytesIO(output_image)).convert("RGB")
+
+    # Step 4: Save to static/temp
+    temp_dir = os.path.join(app_root, "static", "temp")
+    os.makedirs(temp_dir, exist_ok=True)
+
+    # create unique filename
+    filename = f"bg_removed.png"
+    save_path_temp = os.path.join(temp_dir, filename)
+    img.save(save_path_temp)
+
+    # Step 5: Resize to target size
+    img_resized = img.resize((128, 128))
+
+    # Step 6: Convert to array and normalize
+    img_arr = img_to_array(img_resized) / 255.0
+    img_arr = np.expand_dims(img_arr, axis=0)
+
+    # Step 7: Predict age
+    pred_age = model.predict(img_arr, verbose=0)
+
+    return pred_age
+
 
 model_bp = Blueprint("model", __name__)
 
@@ -94,13 +128,15 @@ def predict():
 
     try:
         # Preprocess + inference
-        img_tensor = preprocess_image(save_path).to(current_app.device)
+        # img_tensor = preprocess_image(save_path).to(current_app.device)
 
-        with torch.no_grad():
-            logits = current_app.model(img_tensor)
-            pred_age = coral_decode(logits)
+        # with torch.no_grad():
+        #     logits = current_app.model(img_tensor)
+        #     pred_age = coral_decode(logits)
 
-        return jsonify({"predicted_age": int(pred_age)})
+        
+        pred_age = preprocess_and_predict_h5(save_path, current_app.model, current_app.root_path)
+        return jsonify({"predicted_age": int(pred_age[0][0])})
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500

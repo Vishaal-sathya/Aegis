@@ -12,6 +12,7 @@ import numpy as np
 from PIL import Image
 from rembg import remove
 import io
+from mtcnn import MTCNN
 
 
 # def preprocess_image(img_path, order=[3,4,6,9]):
@@ -77,6 +78,8 @@ def preprocess_image(img_path, order=[3,4,6,9]):
     return img_tensor
 
 
+DETECTOR = MTCNN()
+
 def preprocess_and_predict_h5(save_path, model, app_root):
     # Step 1: Open image
     with open(save_path, "rb") as f:
@@ -86,25 +89,47 @@ def preprocess_and_predict_h5(save_path, model, app_root):
     output_image = remove(input_image)
 
     # Step 3: Load background-removed image with PIL
-    img = Image.open(io.BytesIO(output_image)).convert("RGB")
+    img = Image.open(io.BytesIO(output_image))
 
-    # Step 4: Save to static/temp
+    # Step 3a: Fill transparent background with white
+    if img.mode in ("RGBA", "LA"):
+        white_bg = Image.new("RGB", img.size, (255, 255, 255))
+        white_bg.paste(img, mask=img.split()[-1])  # last channel = alpha
+        img = white_bg
+    else:
+        img = img.convert("RGB")
+
+    # Step 4: Save background-removed (white filled) image
     temp_dir = os.path.join(app_root, "static", "temp")
     os.makedirs(temp_dir, exist_ok=True)
+    bg_removed_path = os.path.join(temp_dir, "bg_removed.png")
+    img.save(bg_removed_path)
 
-    # create unique filename
-    filename = f"bg_removed.png"
-    save_path_temp = os.path.join(temp_dir, filename)
-    img.save(save_path_temp)
+    # Step 5: Convert to numpy for MTCNN
+    img_cv = np.array(img)
 
-    # Step 5: Resize to target size
-    img_resized = img.resize((128, 128))
+    # Step 6: Detect faces
+    results = DETECTOR.detect_faces(img_cv)
+    if len(results) > 0:
+        # Take largest face
+        results = sorted(results, key=lambda x: x['box'][2] * x['box'][3], reverse=True)
+        x, y, w, h = results[0]['box']
+        x, y = max(0, x), max(0, y)
+        face = img_cv[y:y+h, x:x+w]
+        img_cv = cv2.resize(face, (128, 128))
+    else:
+        # No face found → just resize full image
+        img_cv = cv2.resize(img_cv, (128, 128))
 
-    # Step 6: Convert to array and normalize
-    img_arr = img_to_array(img_resized) / 255.0
+    # Step 7: Save face cropped image
+    face_cropped_path = os.path.join(temp_dir, "face_cropped.png")
+    Image.fromarray(img_cv).save(face_cropped_path)
+
+    # Step 8: Convert to array and normalize
+    img_arr = img_to_array(img_cv) / 255.0
     img_arr = np.expand_dims(img_arr, axis=0)
 
-    # Step 7: Predict age
+    # Step 9: Predict age
     pred_age = model.predict(img_arr, verbose=0)
 
     return pred_age

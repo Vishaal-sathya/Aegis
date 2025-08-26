@@ -200,6 +200,7 @@ def coral_decode(logits, threshold=0.5, idx_to_class=idx_to_class):
     if idx_to_class:
         pred_ages = [class_to_age(idx_to_class[i.item()]) for i in pred_idx]
         print(pred_ages[0])
+        
         return pred_ages[0]
     return pred_idx
 

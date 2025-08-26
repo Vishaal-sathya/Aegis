@@ -1,7 +1,7 @@
 from app.model_utils.preprocess import preprocess_pipeline
 from app.model_utils.model import coral_decode
 
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+# from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from flask import Blueprint, render_template, current_app, request, jsonify
 import torch
 from torchvision import transforms
@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image
 from rembg import remove
 import io
-from mtcnn import MTCNN
+# from mtcnn import MTCNN
 
 
 # def preprocess_image(img_path, order=[3,4,6,9]):
@@ -78,61 +78,61 @@ def preprocess_image(img_path, order=[3,4,6,9]):
     return img_tensor
 
 
-DETECTOR = MTCNN()
+# DETECTOR = MTCNN()
 
-def preprocess_and_predict_h5(save_path, model, app_root):
-    # Step 1: Open image
-    with open(save_path, "rb") as f:
-        input_image = f.read()
+# def preprocess_and_predict_h5(save_path, model, app_root):
+#     # Step 1: Open image
+#     with open(save_path, "rb") as f:
+#         input_image = f.read()
 
-    # Step 2: Remove background
-    output_image = remove(input_image)
+#     # Step 2: Remove background
+#     output_image = remove(input_image)
 
-    # Step 3: Load background-removed image with PIL
-    img = Image.open(io.BytesIO(output_image))
+#     # Step 3: Load background-removed image with PIL
+#     img = Image.open(io.BytesIO(output_image))
 
-    # Step 3a: Fill transparent background with white
-    if img.mode in ("RGBA", "LA"):
-        white_bg = Image.new("RGB", img.size, (255, 255, 255))
-        white_bg.paste(img, mask=img.split()[-1])  # last channel = alpha
-        img = white_bg
-    else:
-        img = img.convert("RGB")
+#     # Step 3a: Fill transparent background with white
+#     if img.mode in ("RGBA", "LA"):
+#         white_bg = Image.new("RGB", img.size, (255, 255, 255))
+#         white_bg.paste(img, mask=img.split()[-1])  # last channel = alpha
+#         img = white_bg
+#     else:
+#         img = img.convert("RGB")
 
-    # Step 4: Save background-removed (white filled) image
-    temp_dir = os.path.join(app_root, "static", "temp")
-    os.makedirs(temp_dir, exist_ok=True)
-    bg_removed_path = os.path.join(temp_dir, "bg_removed.png")
-    img.save(bg_removed_path)
+#     # Step 4: Save background-removed (white filled) image
+#     temp_dir = os.path.join(app_root, "static", "temp")
+#     os.makedirs(temp_dir, exist_ok=True)
+#     bg_removed_path = os.path.join(temp_dir, "bg_removed.png")
+#     img.save(bg_removed_path)
 
-    # Step 5: Convert to numpy for MTCNN
-    img_cv = np.array(img)
+#     # Step 5: Convert to numpy for MTCNN
+#     img_cv = np.array(img)
 
-    # Step 6: Detect faces
-    results = DETECTOR.detect_faces(img_cv)
-    if len(results) > 0:
-        # Take largest face
-        results = sorted(results, key=lambda x: x['box'][2] * x['box'][3], reverse=True)
-        x, y, w, h = results[0]['box']
-        x, y = max(0, x), max(0, y)
-        face = img_cv[y:y+h, x:x+w]
-        img_cv = cv2.resize(face, (128, 128))
-    else:
-        # No face found → just resize full image
-        img_cv = cv2.resize(img_cv, (128, 128))
+#     # Step 6: Detect faces
+#     results = DETECTOR.detect_faces(img_cv)
+#     if len(results) > 0:
+#         # Take largest face
+#         results = sorted(results, key=lambda x: x['box'][2] * x['box'][3], reverse=True)
+#         x, y, w, h = results[0]['box']
+#         x, y = max(0, x), max(0, y)
+#         face = img_cv[y:y+h, x:x+w]
+#         img_cv = cv2.resize(face, (128, 128))
+#     else:
+#         # No face found → just resize full image
+#         img_cv = cv2.resize(img_cv, (128, 128))
 
-    # Step 7: Save face cropped image
-    face_cropped_path = os.path.join(temp_dir, "face_cropped.png")
-    Image.fromarray(img_cv).save(face_cropped_path)
+#     # Step 7: Save face cropped image
+#     face_cropped_path = os.path.join(temp_dir, "face_cropped.png")
+#     Image.fromarray(img_cv).save(face_cropped_path)
 
-    # Step 8: Convert to array and normalize
-    img_arr = img_to_array(img_cv) / 255.0
-    img_arr = np.expand_dims(img_arr, axis=0)
+#     # Step 8: Convert to array and normalize
+#     img_arr = img_to_array(img_cv) / 255.0
+#     img_arr = np.expand_dims(img_arr, axis=0)
 
-    # Step 9: Predict age
-    pred_age = model.predict(img_arr, verbose=0)
+#     # Step 9: Predict age
+#     pred_age = model.predict(img_arr, verbose=0)
 
-    return pred_age
+#     return pred_age
 
 
 model_bp = Blueprint("model", __name__)
@@ -153,15 +153,15 @@ def predict():
 
     try:
         # Preprocess + inference
-        # img_tensor = preprocess_image(save_path).to(current_app.device)
+        img_tensor = preprocess_image(save_path).to(current_app.device)
 
-        # with torch.no_grad():
-        #     logits = current_app.model(img_tensor)
-        #     pred_age = coral_decode(logits)
-
+        with torch.no_grad():
+            logits = current_app.model(img_tensor)
+            pred_age = coral_decode(logits)
         
-        pred_age = preprocess_and_predict_h5(save_path, current_app.model, current_app.root_path)
-        return jsonify({"predicted_age": int(pred_age[0][0])})
+        
+        # pred_age = preprocess_and_predict_h5(save_path, current_app.model, current_app.root_path)
+        return jsonify({"predicted_age": int(pred_age)})
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500

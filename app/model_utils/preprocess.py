@@ -1,61 +1,61 @@
 # preprocess.py
 import cv2
 import numpy as np
-from mtcnn import MTCNN
+# from mtcnn import MTCNN
 import albumentations as A
 import os, time
 
 # ------------------- FACE DETECTOR -------------------
-DETECTOR = MTCNN()
+# DETECTOR = MTCNN()
 
-def detect_and_crop_face(image, target_size=(224, 224), padding=0.3):
-    """
-    padding: fraction of the face box to expand on each side (e.g., 0.2 = 20%)
-    """
-    global DETECTOR
-    results = DETECTOR.detect_faces(image)
-    if len(results) == 0:
-        print("[WARN] No face detected, resizing full image...")
-        return cv2.resize(image, target_size)
+# def detect_and_crop_face(image, target_size=(224, 224), padding=0.3):
+#     """
+#     padding: fraction of the face box to expand on each side (e.g., 0.2 = 20%)
+#     """
+#     global DETECTOR
+#     results = DETECTOR.detect_faces(image)
+#     if len(results) == 0:
+#         print("[WARN] No face detected, resizing full image...")
+#         return cv2.resize(image, target_size)
 
-    # Take largest face
-    results = sorted(results, key=lambda x: x['box'][2] * x['box'][3], reverse=True)
-    x, y, w, h = results[0]['box']
-    x, y = max(0, x), max(0, y)
+#     # Take largest face
+#     results = sorted(results, key=lambda x: x['box'][2] * x['box'][3], reverse=True)
+#     x, y, w, h = results[0]['box']
+#     x, y = max(0, x), max(0, y)
 
-    # --- Add padding ---
-    pad_w = int(w * padding)
-    pad_h = int(h * padding)
+#     # --- Add padding ---
+#     pad_w = int(w * padding)
+#     pad_h = int(h * padding)
 
-    x1 = max(0, x - pad_w)
-    y1 = max(0, y - pad_h)
-    x2 = min(image.shape[1], x + w + pad_w)
-    y2 = min(image.shape[0], y + h + pad_h)
+#     x1 = max(0, x - pad_w)
+#     y1 = max(0, y - pad_h)
+#     x2 = min(image.shape[1], x + w + pad_w)
+#     y2 = min(image.shape[0], y + h + pad_h)
 
-    face = image[y1:y2, x1:x2]
+#     face = image[y1:y2, x1:x2]
 
-    return cv2.resize(face, target_size)
+#     return cv2.resize(face, target_size)
 
 
 
-def align_face(image, target_size=(224, 224)):
-    global DETECTOR
-    results = DETECTOR.detect_faces(image)
-    if len(results) == 0:
-        print("[WARN] No face detected for alignment, resizing full image...")
-        return cv2.resize(image, target_size)
+# def align_face(image, target_size=(224, 224)):
+#     global DETECTOR
+#     results = DETECTOR.detect_faces(image)
+#     if len(results) == 0:
+#         print("[WARN] No face detected for alignment, resizing full image...")
+#         return cv2.resize(image, target_size)
 
-    keypoints = results[0]['keypoints']
-    left_eye, right_eye = keypoints['left_eye'], keypoints['right_eye']
+#     keypoints = results[0]['keypoints']
+#     left_eye, right_eye = keypoints['left_eye'], keypoints['right_eye']
 
-    dx, dy = right_eye[0] - left_eye[0], right_eye[1] - left_eye[1]
-    angle = np.degrees(np.arctan2(dy, dx))
+#     dx, dy = right_eye[0] - left_eye[0], right_eye[1] - left_eye[1]
+#     angle = np.degrees(np.arctan2(dy, dx))
 
-    h, w = image.shape[:2]
-    M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1)
-    aligned = cv2.warpAffine(image, M, (w, h))
+#     h, w = image.shape[:2]
+#     M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1)
+#     aligned = cv2.warpAffine(image, M, (w, h))
 
-    return detect_and_crop_face(aligned, target_size)
+#     return detect_and_crop_face(aligned, target_size)
 
 
 # ------------------- PREPROCESSING STEPS -------------------
@@ -110,8 +110,8 @@ def augment_image(image):
 
 # ------------------- PIPELINE CONFIG -------------------
 PIPELINE_FUNCS = {
-    1: detect_and_crop_face,
-    2: align_face,
+    # 1: detect_and_crop_face,
+    # 2: align_face,
     3: resize_only,
     4: yuv_hist_equalization,
     5: lab_normalization,
@@ -121,7 +121,7 @@ PIPELINE_FUNCS = {
     9: normalize,
 }
 
-DEFAULT_ORDER = [1, 2, 3, 5, 7, 9]   # detect → align → resize → lab_norm → high_freq → normalize
+DEFAULT_ORDER = [3, 4, 6, 9]   # detect → align → resize → lab_norm → high_freq → normalize
 
 
 def preprocess_pipeline(image, order=None, augment=False):

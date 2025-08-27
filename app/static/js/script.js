@@ -54,7 +54,28 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function startAgeEstimation() {
-    startButton.disabled = true;
+  if (window.PAD_MODE === 1) {
+    // Strict mode: Only allow if passed PAD
+    if (!window.securityPassed) {
+      showAlert("⚠️ Please pass security check first");
+      document.getElementById("anti-spoofing").scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+  } else if (window.PAD_MODE === 2) {
+    // Always visible but still warn
+    if (!window.securityPassed) {
+      showAlert("⚠️ Security check not completed.");
+      console.log("pad_mode is in 2");
+    }
+    //   document.getElementById("anti-spoofing").scrollIntoView({ behavior: "smooth" });
+    //   startButton.disabled = false;
+    //   startButton.classList.remove('processing');
+    //   buttonText.textContent = 'Start';
+    // }
+  }
+
+  // Existing age estimation logic runs here
+  startButton.disabled = true;
     startButton.classList.add('processing');
     resultPopup.style.display = 'flex';
     processingAnimation.style.display = 'block';
@@ -106,7 +127,11 @@ document.addEventListener('DOMContentLoaded', () => {
           startButton.classList.remove('processing');
         });
     }, 'image/jpeg');
-  }
+}
+
+  // function startAgeEstimation() {
+    
+  // }
 
   // Close popup on ESC
   document.addEventListener('keydown', function (event) {
@@ -160,6 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
       header.classList.remove('scrolled');
     }
   });
+
+  if (window.PAD_MODE === 1) {
+  console.log("Mode 1: Age check is hidden until PAD passes.");
+} else if (window.PAD_MODE === 2) {
+  console.log("Mode 2: Both visible, but PAD required first.");
+}
+
 
   // ---------------- PRESENTATION ATTACK DETECTION ----------------
   const video = document.getElementById("video");
@@ -234,7 +266,15 @@ document.addEventListener('DOMContentLoaded', () => {
       let data = await res.json();
       console.log("PAD Response:", data);
 
+      
+
       if (data.challenge === "done") {
+        window.securityPassed = true;
+        const beep = document.getElementById("success-sound");
+        if (beep) {
+            beep.currentTime = 0; // rewind in case it's still playing
+            beep.play().catch(err => console.warn("Audio play blocked:", err));
+          }
         challengeText.innerText = "✅ All challenges passed!";
         statusText.innerText = data.message;
         timerText.innerText = "⏳ Finished!";
@@ -242,6 +282,12 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(countdownLoop);
         sessionActive = false;
       } else if (data.challenge === "failed") {
+        const beep = document.getElementById("fail-sound");
+          if (beep) {
+            beep.currentTime = 0; // rewind in case it's still playing
+            beep.play().catch(err => console.warn("Audio play blocked:", err));
+          }
+
         challengeText.innerText = "❌ Spoof Detected";
         statusText.innerText = data.message;
         timerText.innerText = "⏳ Challenge failed";
@@ -256,6 +302,13 @@ document.addEventListener('DOMContentLoaded', () => {
           clearInterval(countdownLoop);
           isPaused = true;
 
+          // 🔊 Play success sound
+          const beep = document.getElementById("success-sound");
+          if (beep) {
+            beep.currentTime = 0; // rewind in case it's still playing
+            beep.play().catch(err => console.warn("Audio play blocked:", err));
+          }
+
           if (data.next_challenge) {
             challengeText.innerText = `✅ Passed! Next: ${data.next_challenge} (2s...)`;
           } else {
@@ -268,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             startCountdown();
           }, 2000);
         }
+
       }
     } catch (err) {
       console.error("❌ Error sending PAD frame:", err);
@@ -295,3 +349,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+function showAlert(message, duration = 3000) {
+  const alertBox = document.getElementById("custom-alert");
+  const msg = document.getElementById("custom-alert-message");
+
+  msg.innerText = message;
+  alertBox.style.display = "block";
+
+  setTimeout(() => {
+    alertBox.style.display = "none";
+  }, duration);
+}
+

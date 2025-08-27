@@ -143,6 +143,8 @@ header nav {
 }
 
 
+
+
 .logo-icon {
   width: 2rem;
   height: 2rem;
@@ -1131,5 +1133,136 @@ main {
   #anti-spoofing .status-box {
     width: 100% !important;
     margin-top: 15px;
+  }
+}
+
+/* ---------------- MOBILE RESPONSIVENESS ---------------- */
+@media (max-width: 768px) {
+  /* General text scaling */
+  body {
+    font-size: 0.9rem;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+    line-height: 1.3;
+  }
+  .hero-description {
+    font-size: 1rem;
+  }
+  .status-box{
+    width: 100%;
+    align-items: center;
+  }
+
+  .learn-title,
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .learn-description,
+  .section-description {
+    font-size: 1rem;
+  }
+
+  /* Grid stacking fixes */
+  .hero-grid,
+  .learn-grid,
+  .benefit-grid,
+  .preprocessing-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem;
+  }
+
+  .benefit-box {
+    height: auto; /* remove fixed height for mobile */
+    padding: 1.25rem;
+  }
+
+  /* Timeline fixes (already some, improve spacing) */
+  .timeline-content {
+    padding: 1.25rem;
+    font-size: 0.9rem;
+  }
+  .timeline-title {
+    font-size: 1.25rem;
+  }
+  .anti-spoofing-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .pad-right {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+  .status-text{
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .status-box {
+    width: 90%;
+  }
+
+  /* PAD / Age sections */
+  .age-estimation-container,
+  #anti-spoofing  {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .camera-container {
+    max-width: 100% !important;
+    aspect-ratio: 3/4;
+  }
+
+  .estimation-controls {
+    width: 100%;
+  }
+  .estimation-controls button {
+    width: 100%;
+  }
+
+  /* Popups */
+  #age-result-popup {
+    width: 95%;
+    max-width: 300px;
+  }
+  #age-result {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Further scale down for very small devices */
+  .hero-title {
+    font-size: 1.5rem;
+  }
+  .hero-description,
+  .learn-description,
+  .section-description {
+    font-size: 0.9rem;
+  }
+
+  .learn-title,
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .benefit-title,
+  .step-title,
+  .timeline-title {
+    font-size: 1rem;
+  }
+
+  .glass-button.md,
+  .glass-button.lg {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
   }
 }

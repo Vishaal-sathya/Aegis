@@ -76,6 +76,16 @@ def start_session():
     reset_challenges()
     return jsonify({"status": "ok", "message": "New challenge session started"})
 
+# ------------------------------
+# Challenge instructions
+# ------------------------------
+CHALLENGE_INSTRUCTIONS = {
+    "alignment": "Please center your face in the camera",
+    "blink": "Blink your eyes",
+    "turn_left": "Turn your face to the left",
+    "turn_right": "Turn your face to the right",
+}
+
 @pad_bp.route("/process_frame", methods=["POST"])
 def process_frame():
     global challenge_index, challenge_start_time
@@ -103,7 +113,12 @@ def process_frame():
     current_challenge = challenge_list[challenge_index]
     elapsed = time.time() - challenge_start_time
 
-    status = {"challenge": current_challenge, "passed": False, "message": ""}
+    # Use friendly instructions by default
+    status = {
+        "challenge": current_challenge,
+        "passed": False,
+        "message": CHALLENGE_INSTRUCTIONS.get(current_challenge, "Follow the challenge")
+    }
 
     if elapsed > CHALLENGE_TIMEOUT:
         reset_challenges()
@@ -117,44 +132,46 @@ def process_frame():
 
     if current_challenge == "alignment":
         ok, msg = check_alignment(landmarks, frame.shape)
-        status["message"] = msg
+        status["message"] = msg if not ok else "✅ Face centered"
         if ok:
             status["passed"] = True
             challenge_index += 1
             challenge_start_time = time.time()
             if challenge_index < len(challenge_list):
-                status["next_challenge"] = challenge_list[challenge_index]
+                status["next_challenge"] = CHALLENGE_INSTRUCTIONS[challenge_list[challenge_index]]
 
     elif current_challenge == "blink":
         ear_l = eye_aspect_ratio(landmarks, LEFT_EYE)
         ear_r = eye_aspect_ratio(landmarks, RIGHT_EYE)
-        status["message"] = f"EAR L:{ear_l:.2f}, R:{ear_r:.2f}"
         if ear_l < 0.2 and ear_r < 0.2:
+            status["message"] = "✅ Blink detected"
             status["passed"] = True
             challenge_index += 1
             challenge_start_time = time.time()
             if challenge_index < len(challenge_list):
-                status["next_challenge"] = challenge_list[challenge_index]
+                status["next_challenge"] = CHALLENGE_INSTRUCTIONS[challenge_list[challenge_index]]
 
     elif current_challenge == "turn_left":
         direction = head_turn_direction(landmarks)
-        status["message"] = f"Head: {direction}"
+        status["message"] = "Please turn your face left"
         if direction == "left":
+            status["message"] = "✅ Face turned left"
             status["passed"] = True
             challenge_index += 1
             challenge_start_time = time.time()
             if challenge_index < len(challenge_list):
-                status["next_challenge"] = challenge_list[challenge_index]
+                status["next_challenge"] = CHALLENGE_INSTRUCTIONS[challenge_list[challenge_index]]
 
     elif current_challenge == "turn_right":
         direction = head_turn_direction(landmarks)
-        status["message"] = f"Head: {direction}"
+        status["message"] = "Please turn your face right"
         if direction == "right":
+            status["message"] = "✅ Face turned right"
             status["passed"] = True
             challenge_index += 1
             challenge_start_time = time.time()
             if challenge_index < len(challenge_list):
-                status["next_challenge"] = challenge_list[challenge_index]
+                status["next_challenge"] = CHALLENGE_INSTRUCTIONS[challenge_list[challenge_index]]
 
     if challenge_index >= len(challenge_list):
         reset_challenges()
@@ -162,6 +179,7 @@ def process_frame():
 
     return jsonify(status)
 
-@pad_bp.route("/")
-def index():
-    return render_template("index.html")
+# @pad_bp.route("/")
+# def index():
+#     from ..config import PAD_MODE
+#     return render_template("index.html", pad_mode=PAD_MODE)

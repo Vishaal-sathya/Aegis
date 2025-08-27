@@ -14,3 +14,6 @@ class Config:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_PATH = os.path.join(BASE_DIR, "model_utils", "checkpoint_best.pth")
     UPLOAD_FOLDER = r'app\static\temp'
+    # config.py
+    PAD_MODE = 1  # 1 = Strict Gating, 2 = Always Available With Warning
+

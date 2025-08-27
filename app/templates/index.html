@@ -15,23 +15,28 @@
     <header class="glass-morphism-strong">
       <nav class="max-w-7xl mx-auto">
         <!-- Logo - Top Left (moved from right) -->
-        <div class="logo-container">
+        <!-- <div class="logo-container">
           <div class="logo-icon tech-glow">
             <div class="logo-inner"></div>
           </div>
           <span class="logo-text gradient-text">Aegis</span>
+        </div> -->
+        <div class="logo-container">
+          <img src="static/assets/aegis_logo.png" alt="Aegis Logo" class="logo-image" />
+          <!-- <span class="logo-text gradient-text">Aegis</span> -->
         </div>
+
 
         <!-- Navigation Links - Center -->
         <div class="nav-links">
-          <a href="#check-age" class="nav-link">Check Your Age</a>
+          <a href="#anti-spoofing" class="nav-link">Security Check</a>
           <a href="#learn" class="nav-link">Learn More</a>
           <a href="#preprocessing" class="nav-link">Preprocessing</a>
           <a href="#architecture" class="nav-link">Model Architecture</a>
         </div>
 
         <!-- CTA Button - Top Right (moved from left) -->
-        <a href="#check-age" class="glass-button primary md">Try It Now</a>
+        <a href="#anti-spoofing" class="glass-button primary md">Try It Now</a>
       </nav>
     </header>
 
@@ -94,43 +99,74 @@
         </div>
       </div>
     </main>
-    <!-- Presentation Attack Detection Section -->
-  <section id="anti-spoofing">
-    <div class="max-w-7xl mx-auto">
-      <div class="section-header">
-        <div class="badge glass-morphism mx-auto">
-          <span class="gradient-text">SECURITY CHECK</span>
-        </div>
-        <h2 class="section-title gradient-text">Presentation Attack Detection</h2>
-        <p class="section-description">
-          Ensure liveness detection and protect against spoofing attempts with our AI-powered challenge system.
-        </p>
+<!-- Presentation Attack Detection Section -->
+<section id="anti-spoofing">
+  <div class="max-w-7xl mx-auto">
+    <div class="section-header">
+      <div class="badge glass-morphism mx-auto">
+        <span class="gradient-text">SECURITY CHECK</span>
+      </div>
+      <h2 class="section-title gradient-text">Presentation Attack Detection</h2>
+      <p class="section-description">
+        Ensure liveness detection and protect against spoofing attempts with our AI-powered challenge system.
+      </p>
+    </div>
+
+    <!-- Side by side layout -->
+    <div
+      class="anti-spoofing-container"
+      style="
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
+        align-items: flex-start;
+        margin-top: 20px;
+      "
+    >
+      <!-- Camera Feed (Left) -->
+      <div class="camera-container glass-morphism" style="flex: 1 1 400px; max-width: 500px;">
+        <video id="video" autoplay muted playsinline></video>
       </div>
 
-      <div class="anti-spoofing-container">
-        <!-- Camera Feed -->
-        <div class="camera-container glass-morphism">
-          <video id="video" autoplay muted playsinline></video>
-        </div>
-
-        <!-- Controls & Info -->
+      <!-- Controls + Status (Right) -->
+      <div style="flex: 1 1 300px; max-width: 400px; display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- Controls -->
         <div class="estimation-controls">
-          <button id="startBtn" class="glass-button primary lg">
-            Start Check
+          <button id="startBtn" class="glass-button primary lg" style="width: 100%;">
+            <span class="button-text">Start Security Check</span>
+            <!-- <span class="processing-text">Processing</span> -->
+          </button>
+          <button id="switch-camera" class="glass-button secondary lg" style="margin-top: 10px; width: 100%;">
+            Switch Camera
           </button>
         </div>
 
         <!-- Challenge Status -->
-        <div class="glass-morphism status-box">
-          <p id="challenge" class="status-text gradient-text">
+        <div
+          class="glass-morphism status-box"
+          style="
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            text-align: center;
+          "
+        >
+          <p id="challenge" class="status-text gradient-text" style="margin: 5px 0">
             Challenge: Waiting...
           </p>
-          <p id="status" class="status-text">Status: Not started</p>
-          <p id="timer" class="status-text">⏳ Time left: -</p>
+          <p id="status" class="status-text" style="margin: 5px 0">Status: Not started</p>
+          <p id="timer" class="status-text" style="margin: 5px 0">⏳ Time left: -</p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+
+
+
 
 
     <!-- Age Estimation Section -->

@@ -81,10 +81,18 @@ def process_frame():
     global challenge_index, challenge_start_time
 
     data = request.json
-    img_data = data["frame"].split(",")[1]
-    img = base64.b64decode(img_data)
-    np_img = np.frombuffer(img, np.uint8)
-    frame = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
+    if not data or "frame" not in data:
+        return jsonify({"challenge": "failed", "message": "⚠️ No frame received", "passed": False})
+
+    try:
+        img_data = data["frame"].split(",")[1]
+        img = base64.b64decode(img_data)
+        np_img = np.frombuffer(img, np.uint8)
+        frame = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
+        if frame is None:
+            return jsonify({"challenge": "failed", "message": "⚠️ Invalid frame", "passed": False})
+    except Exception as e:
+        return jsonify({"challenge": "failed", "message": f"⚠️ Frame decode error: {str(e)}", "passed": False})
 
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     res = face_mesh.process(rgb)

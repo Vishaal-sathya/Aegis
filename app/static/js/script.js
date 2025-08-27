@@ -1,28 +1,29 @@
-// Smooth scrolling for navigation links
+// Smooth scrolling for navigation links + Header behavior
 document.addEventListener('DOMContentLoaded', () => {
-  // Age Estimation Webcam Functionality
+  // ---------------- AGE ESTIMATION ----------------
   const webcamElement = document.getElementById('webcam');
   const startButton = document.getElementById('start-estimation');
   const resultPopup = document.getElementById('age-result-popup');
   const processingAnimation = document.getElementById('processing-animation');
   const ageResult = document.getElementById('age-result');
-  const switchCameraButton = document.getElementById('switch-camera'); // <-- new button
+  const switchCameraButton = document.getElementById('switch-camera');
   let stream = null;
   let currentFacingMode = "user"; // default = front camera
   
-  const buttonText = startButton.querySelector('.button-text');
+  const buttonText = startButton?.querySelector('.button-text');
 
-  // Helper: start camera with facingMode
   async function startCamera() {
     if (stream) {
-      stream.getTracks().forEach(track => track.stop()); // stop old stream
+      stream.getTracks().forEach(track => track.stop());
     }
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: currentFacingMode }
       });
-      webcamElement.srcObject = stream;
-      await webcamElement.play();
+      if (webcamElement) {
+        webcamElement.srcObject = stream;
+        await webcamElement.play();
+      }
       console.log(`Camera started with facingMode=${currentFacingMode}`);
     } catch (err) {
       console.error("Error accessing webcam:", err);
@@ -31,11 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Record/Start button click handler
-  startButton.addEventListener('click', async function() {
+  startButton?.addEventListener('click', async function() {
     if (buttonText.textContent.trim() === 'Record') {
-      // Request webcam access (only now)
       await startCamera();
-      // Change button label
       buttonText.textContent = 'Start';
     } else if (buttonText.textContent.trim() === 'Start') {
       startButton.disabled = true;
@@ -45,11 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Switch camera button handler
-  switchCameraButton.addEventListener('click', async () => {
-    // Toggle camera mode
+  switchCameraButton?.addEventListener('click', async () => {
     currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
     if (buttonText.textContent.trim() !== 'Record') {
-      // Only switch if camera already started
       await startCamera();
     } else {
       console.log("Camera not started yet. Click 'Record' first.");
@@ -57,37 +54,29 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function startAgeEstimation() {
-    // Disable button and show processing state
     startButton.disabled = true;
     startButton.classList.add('processing');
-
-    // Show popup with processing animation
     resultPopup.style.display = 'flex';
     processingAnimation.style.display = 'block';
     ageResult.style.display = 'none';
 
-    // ---- Capture Image from Webcam ----
     const canvas = document.getElementById('capture-canvas');
     const context = canvas.getContext('2d');
     canvas.width = webcamElement.videoWidth;
     canvas.height = webcamElement.videoHeight;
     context.drawImage(webcamElement, 0, 0, canvas.width, canvas.height);
 
-    // Convert canvas to Blob (JPEG/PNG)
     canvas.toBlob((blob) => {
       const formData = new FormData();
       formData.append('image', blob, 'capture.jpg');
 
-      // ---- Send to Flask API ----
       fetch('/predict', {
         method: 'POST',
         body: formData
       })
         .then(response => response.json())
         .then(data => {
-          // Hide animation
           processingAnimation.style.display = 'none';
-
           if (data.predicted_age) {
             ageResult.style.display = 'block';
             ageResult.textContent = data.predicted_age + ' years';
@@ -103,20 +92,20 @@ document.addEventListener('DOMContentLoaded', () => {
           ageResult.textContent = 'Error sending image to server';
         })
         .finally(() => {
-          // Re-enable button
           startButton.disabled = false;
           startButton.classList.remove('processing');
         });
     }, 'image/jpeg');
   }
 
-  // Close popup when ESC key is pressed
+  // Close popup on ESC
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape' && resultPopup.style.display === 'flex') {
       resultPopup.style.display = 'none';
     }
   });
 
+  // Smooth scrolling
   const navLinks = document.querySelectorAll('a[href^="#"]');
   navLinks.forEach(link => {
     link.addEventListener('click', function(e) {
@@ -132,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Add active class to navigation links on scroll
+  // Active class on scroll
   window.addEventListener('scroll', () => {
     const sections = document.querySelectorAll('section');
     const navLinks = document.querySelectorAll('.nav-link');
@@ -152,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Add responsive menu toggle for mobile
+  // Header shrink on scroll
   const header = document.querySelector('header');
   window.addEventListener('scroll', () => {
     if (window.scrollY > 50) {
@@ -160,5 +149,110 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       header.classList.remove('scrolled');
     }
+  });
+
+
+  // ---------------- PRESENTATION ATTACK DETECTION ----------------
+  const video = document.getElementById("video");
+  const challengeText = document.getElementById("challenge");
+  const statusText = document.getElementById("status");
+  const timerText = document.getElementById("timer");
+  const startBtn = document.getElementById("startBtn");
+
+  let loop;
+  let countdownLoop;
+  let timeLeft = 10;
+  let isPaused = false;
+
+  if (video) {
+    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+      video.srcObject = stream;
+    });
+  }
+
+  function captureFrame() {
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+    return canvas.toDataURL("image/jpeg");
+  }
+
+  function startCountdown() {
+    clearInterval(countdownLoop);
+    timeLeft = 10;
+    timerText.innerText = `⏳ Time left: ${timeLeft}s`;
+    countdownLoop = setInterval(() => {
+      timeLeft--;
+      timerText.innerText = `⏳ Time left: ${timeLeft}s`;
+      if (timeLeft <= 0) {
+        clearInterval(countdownLoop);
+      }
+    }, 1000);
+  }
+
+  async function sendFrame() {
+    if (isPaused) return;
+
+    const frame = captureFrame();
+
+    let res = await fetch("/process_frame", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ frame: frame }),
+    });
+
+    let data = await res.json();
+    console.log("Response:", data);
+
+    if (data.challenge === "done") {
+      challengeText.innerText = "✅ All challenges passed!";
+      statusText.innerText = data.message;
+      timerText.innerText = "⏳ Finished!";
+      clearInterval(loop);
+      clearInterval(countdownLoop);
+    } else if (data.challenge === "failed") {
+      challengeText.innerText = "❌ Spoof Detected";
+      statusText.innerText = data.message;
+      timerText.innerText = "⏳ Challenge failed";
+      clearInterval(loop);
+      clearInterval(countdownLoop);
+    } else {
+      challengeText.innerText = "Challenge: " + data.challenge;
+      statusText.innerText = "Status: " + data.message;
+
+      if (data.passed) {
+        clearInterval(countdownLoop);
+        isPaused = true;
+
+        if (data.next_challenge) {
+          challengeText.innerText = `✅ Passed! Next challenge: ${data.next_challenge} (starting in 2s...)`;
+        } else {
+          challengeText.innerText = `✅ Passed!`;
+        }
+        timerText.innerText = "⏳ Preparing next challenge...";
+
+        setTimeout(() => {
+          isPaused = false;
+          startCountdown();
+        }, 2000);
+      }
+    }
+  }
+
+  startBtn?.addEventListener("click", async () => {
+    await fetch("/start_session", { method: "POST" });
+
+    challengeText.innerText = "Challenge: Waiting...";
+    statusText.innerText = "Status: Not started";
+    timerText.innerText = "⏳ Timer will start...";
+
+    clearInterval(loop);
+    clearInterval(countdownLoop);
+    isPaused = false;
+
+    loop = setInterval(sendFrame, 1000);
+    startCountdown();
   });
 });

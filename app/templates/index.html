@@ -94,6 +94,44 @@
         </div>
       </div>
     </main>
+    <!-- Presentation Attack Detection Section -->
+  <section id="anti-spoofing">
+    <div class="max-w-7xl mx-auto">
+      <div class="section-header">
+        <div class="badge glass-morphism mx-auto">
+          <span class="gradient-text">SECURITY CHECK</span>
+        </div>
+        <h2 class="section-title gradient-text">Presentation Attack Detection</h2>
+        <p class="section-description">
+          Ensure liveness detection and protect against spoofing attempts with our AI-powered challenge system.
+        </p>
+      </div>
+
+      <div class="anti-spoofing-container">
+        <!-- Camera Feed -->
+        <div class="camera-container glass-morphism">
+          <video id="video" autoplay muted playsinline></video>
+        </div>
+
+        <!-- Controls & Info -->
+        <div class="estimation-controls">
+          <button id="startBtn" class="glass-button primary lg">
+            Start Check
+          </button>
+        </div>
+
+        <!-- Challenge Status -->
+        <div class="glass-morphism status-box">
+          <p id="challenge" class="status-text gradient-text">
+            Challenge: Waiting...
+          </p>
+          <p id="status" class="status-text">Status: Not started</p>
+          <p id="timer" class="status-text">⏳ Time left: -</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
 
     <!-- Age Estimation Section -->
     <section id="check-age">

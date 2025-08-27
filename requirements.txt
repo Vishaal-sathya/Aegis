@@ -1,12 +1,27 @@
-rembg
-onnxruntime
-flask
-gunicorn
-# mtcnn
-numpy
-pandas
-albumentations
-opencv-python
-torch --index-url https://download.pytorch.org/whl/cu128
-torchvision --index-url https://download.pytorch.org/whl/cu128
-# tensorflow
+# Core ML / DL
+torch==2.3.1 --index-url https://download.pytorch.org/whl/cu128
+torchvision==0.18.1 --index-url https://download.pytorch.org/whl/cu128
+
+# Computer Vision
+opencv-python==4.11.0.86
+mediapipe==0.10.21
+rembg==2.0.56
+onnxruntime==1.19.2
+albumentations==1.4.15
+
+# Utilities
+numpy==1.26.4
+pandas==2.2.2
+pillow==10.4.0
+protobuf==4.25.3
+numba==0.59.1
+llvmlite==0.42.0
+rpds-py==0.18.1
+
+# Web
+flask==3.0.3
+gunicorn==23.0.0
+
+# Optional (commented out)
+# mtcnn==0.1.1
+# tensorflow==2.16.1

@@ -13,7 +13,7 @@ class Config:
     # MODEL_PATH = r'app\model_utils\age_focus_model.h5'
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_PATH = os.path.join(BASE_DIR, "model_utils", "checkpoint_best.pth")
-    UPLOAD_FOLDER = r'app\static\temp'
-    # config.py
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "temp")
     PAD_MODE = 1  # 1 = Strict Gating, 2 = Always Available With Warning
+   
 

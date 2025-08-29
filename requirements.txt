@@ -1,6 +1,6 @@
 # Core ML / DL
-torch==2.3.1 --index-url https://download.pytorch.org/whl/cu128
-torchvision==0.18.1 --index-url https://download.pytorch.org/whl/cu128
+torch==2.3.1 
+torchvision==0.18.1 
 
 # Computer Vision
 opencv-python==4.11.0.86
@@ -8,6 +8,8 @@ mediapipe==0.10.21
 rembg==2.0.56
 onnxruntime==1.19.2
 albumentations==1.4.15
+albucore==0.0.15
+
 
 # Utilities
 numpy==1.26.4
